@@ -112,8 +112,7 @@ public class RefSourseDataFieldMappingServiceImpl implements RefSourseDataFieldM
 
 				fileDto.setItems(items);
 
-				System.out.println(
-						"category" + category + "count" + cnt + "file name--" + refSourseFileType.getFileName());
+
 			}
 			fileDtos.add(fileDto);
 		}
