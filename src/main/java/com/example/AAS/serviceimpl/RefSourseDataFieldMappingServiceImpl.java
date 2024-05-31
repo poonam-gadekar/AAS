@@ -1,11 +1,8 @@
 package com.example.AAS.serviceimpl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -22,7 +19,6 @@ import com.example.AAS.dto.ItemDto;
 import com.example.AAS.dto.RuleSetDto;
 import com.example.AAS.dto.SourseDataFieldMappingDto;
 import com.example.AAS.exception.IdNotFoundException;
-import com.example.AAS.repositories.RefCategoryMasterRepo;
 import com.example.AAS.repositories.RefRuleSetRepo;
 import com.example.AAS.repositories.RefSourseDataFieldMappingRepo;
 import com.example.AAS.repositories.RefSourseFileTypeRepo;
@@ -36,9 +32,6 @@ public class RefSourseDataFieldMappingServiceImpl implements RefSourseDataFieldM
 
 	@Autowired
 	private RefSourseFileTypeRepo refSourseFileTypeRepo;
-
-	@Autowired
-	private RefCategoryMasterRepo refCategoryMasterRepo;
 
 	@Autowired
 	private RefSourseDataFieldMappingRepo sourseDataFieldMappingRepo;
@@ -85,24 +78,22 @@ public class RefSourseDataFieldMappingServiceImpl implements RefSourseDataFieldM
 	public List<FileDto> getDataFieldAndCount() {
 
 		List<FileDto> fileDtos = new ArrayList<>();
-		
 
 		List<RefSourseFileType> refSourseFileTypes = refSourseFileTypeRepo.findAll();
-		
+
 		for (RefSourseFileType refSourseFileType : refSourseFileTypes) {
 			List<ItemDto> items = new ArrayList<>();
 			FileDto fileDto = new FileDto();
 			fileDto.setFileType(refSourseFileType.getFileName());
-			
-			
+
 			List<RefSourseDataFieldMapping> reffSourseDataFieldMappings = sourseDataFieldMappingRepo
 					.findByRefSourseFileType(refSourseFileType);
-			
+
 			Map<RefCategoryMaster, Long> counts = reffSourseDataFieldMappings.stream().collect(
 					Collectors.groupingBy(RefSourseDataFieldMapping::getRefCategoryMaster, Collectors.counting()));
-  
+
 			for (Entry<RefCategoryMaster, Long> count : counts.entrySet()) {
-				
+
 				ItemDto itemDto = new ItemDto();
 				String category = count.getKey().getCategory();
 				Long cnt = count.getValue();
@@ -111,7 +102,6 @@ public class RefSourseDataFieldMappingServiceImpl implements RefSourseDataFieldM
 				items.add(itemDto);
 
 				fileDto.setItems(items);
-
 
 			}
 			fileDtos.add(fileDto);
