@@ -6,4 +6,6 @@ import com.example.AAS.Entity.RefCategoryMaster;
 
 public interface RefCategoryMasterRepo extends JpaRepository<RefCategoryMaster, Integer> {
 
+	RefCategoryMaster findByCategory(String category);
+
 }

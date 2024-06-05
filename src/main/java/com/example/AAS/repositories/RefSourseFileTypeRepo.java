@@ -6,4 +6,6 @@ import com.example.AAS.Entity.RefSourseFileType;
 
 public interface RefSourseFileTypeRepo extends JpaRepository<RefSourseFileType, Long> {
 
+	RefSourseFileType findByFileName(String fileName);
+
 }

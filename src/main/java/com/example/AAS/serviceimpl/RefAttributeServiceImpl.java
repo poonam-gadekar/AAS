@@ -45,7 +45,8 @@ public class RefAttributeServiceImpl implements RefAttributeService {
 
 	@Autowired
 	private TrnEntityCategoryDataRepo trnEntityCategoryDataRepo;
-
+	
+	
 	@Autowired
 	private TrnAttributeScreeningResultsRepo trnAttributeScreeningResultsRepo;
 
