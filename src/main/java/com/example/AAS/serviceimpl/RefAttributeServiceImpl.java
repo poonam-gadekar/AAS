@@ -115,7 +115,7 @@ public class RefAttributeServiceImpl implements RefAttributeService {
 	}
 		
 		}
-		if(results.get(0).equals("Pass") && results.get(1).equals("Pass")) {
+		if(results.get(0).equalsIgnoreCase("Pass") && results.get(1).equalsIgnoreCase("Pass")) {
 		String finalResult = "Pass";
 		TrnAttributeScreeningResults trnAttributeScreeningResults = new TrnAttributeScreeningResults();
 		trnAttributeScreeningResults.setScreeningResult(finalResult);
