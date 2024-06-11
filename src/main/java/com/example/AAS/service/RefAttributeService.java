@@ -3,6 +3,7 @@ package com.example.AAS.service;
 import java.util.List;
 
 import com.example.AAS.dto.AtrributeDto;
+import com.example.AAS.dto.AttributeCurrentResultDto;
 
 public interface RefAttributeService {
 
@@ -15,6 +16,8 @@ public interface RefAttributeService {
 	List<AtrributeDto> getAllAttributes();
 
 	List<AtrributeDto> getAttributesByCodeOrDescription(String searchParameter);
+
+	AttributeCurrentResultDto checkAttributeCurrentResult(int mappingId, String dataFieldValue);
 
 	
 

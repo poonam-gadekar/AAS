@@ -2,9 +2,12 @@ package com.example.AAS.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +18,13 @@ import com.example.AAS.Entity.TrnAttributeRuleSet;
 import com.example.AAS.Entity.TrnAttributeScreeningResults;
 import com.example.AAS.Entity.TrnEntityCategoryData;
 import com.example.AAS.dto.AtrributeDto;
+import com.example.AAS.dto.AttributeCurrentResultDto;
 import com.example.AAS.dto.RuleSetDto;
 import com.example.AAS.exception.BadRequestException;
 import com.example.AAS.exception.IdNotFoundException;
 import com.example.AAS.repositories.RefAttributeRepo;
 import com.example.AAS.repositories.RefRuleSetRepo;
+import com.example.AAS.repositories.RefSourseDataFieldMappingRepo;
 import com.example.AAS.repositories.TrnAttributeScreeningResultsRepo;
 import com.example.AAS.repositories.TrnAttrubuteRuleSetRepo;
 import com.example.AAS.repositories.TrnEntityCategoryDataRepo;
@@ -31,6 +36,8 @@ import io.micrometer.common.util.StringUtils;
 @Service
 public class RefAttributeServiceImpl implements RefAttributeService {
 
+	private static final Logger logger = LoggerFactory.getLogger(RefAttributeServiceImpl.class);
+	
 	@Autowired
 	private ModelMapper mapper;
 
@@ -44,7 +51,7 @@ public class RefAttributeServiceImpl implements RefAttributeService {
 	private TrnAttrubuteRuleSetRepo trnAttrubuteRuleSetRepo;
 
 	@Autowired
-	private TrnEntityCategoryDataRepo trnEntityCategoryDataRepo;
+	private RefSourseDataFieldMappingRepo refSourseDataFieldMappingRepo;;
 	
 	
 	@Autowired
@@ -77,6 +84,7 @@ public class RefAttributeServiceImpl implements RefAttributeService {
 			// entity to dto
 			refAtrributeDto2 = mapper.map(refAttribute2, AtrributeDto.class);
 		}
+		logger.info("attribute created successfully");
 		return refAtrributeDto2;
 
 	}
@@ -85,6 +93,7 @@ public class RefAttributeServiceImpl implements RefAttributeService {
 	public AtrributeDto getAttribute(Long attribute_id) {
 		RefAttribute refAttribute = refAttributeRepo.findById(attribute_id)
 				.orElseThrow(() -> new IdNotFoundException("given attribute id not found exception"));
+		logger.debug("attribute is foud with given id");
 		AtrributeDto refAtrributeDto = mapper.map(refAttribute, AtrributeDto.class);
 		return refAtrributeDto;
 	}
@@ -173,6 +182,55 @@ public class RefAttributeServiceImpl implements RefAttributeService {
 		List<RefAttribute> refAttributes = refAttributeRepo.findByAttributeCodeOrDescription(searchParameter);
 		return refAttributes.stream().map(refAttribute -> mapper.map(refAttribute, AtrributeDto.class))
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public AttributeCurrentResultDto checkAttributeCurrentResult(int mappingId, String dataFieldValue) {
+
+		AttributeCurrentResultDto attributeCurrentResultDto = new AttributeCurrentResultDto();
+		System.out.println("==> mapping id" + mappingId);
+
+		RefSourseDataFieldMapping refSourseDataFieldMapping = refSourseDataFieldMappingRepo.findById(mappingId)
+				.orElseThrow(() -> new IdNotFoundException("given mapping id not found"));
+		
+		List<RefRuleSet> refRuleSets = refSourseDataFieldMapping.getRefRuleSets();
+		refRuleSets.stream().forEach(refrule-> refrule.getTrnAttributeRuleSets().forEach(trn->{
+			
+			attributeCurrentResultDto.setAttributeId(trn.getRefAttribute().getAttributeId());
+			attributeCurrentResultDto.setAttributeCode(trn.getRefAttribute().getAttributeCode());
+			attributeCurrentResultDto.setDescription(trn.getRefAttribute().getDescription());
+			attributeCurrentResultDto.setCurrentResult(getCurrentResult(trn));
+			attributeCurrentResultDto.setExpectedResult(checkingExpectedResult(refrule,dataFieldValue));
+			
+			
+		}));
+		
+		
+		return attributeCurrentResultDto;
+	}
+
+	
+	private String checkingExpectedResult(RefRuleSet refrule, String dataFieldValue) {
+		
+		String ruleValue = refrule.getValue();
+		String condition = refrule.getCondition1();
+		String result = RuleUtility.getResult(condition, ruleValue, dataFieldValue);
+		System.out.println("==> result " + result);
+		return result;
+		
+		
+	}
+
+	private String getCurrentResult(TrnAttributeRuleSet trn) {
+		
+	List<TrnAttributeScreeningResults> trnAttributeScreeningResults	= trn.getRefAttribute().getTrnAttributeScreeningResults();
+	String screeningResult = null;
+	for (TrnAttributeScreeningResults trnAttributeScreeningResults2 : trnAttributeScreeningResults) {
+		screeningResult = trnAttributeScreeningResults2.getScreeningResult();
+		System.out.println("===> screeningResult " + screeningResult);
+	}
+	return screeningResult;
+	
 	}
 
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.AAS.dto.AtrributeDto;
+import com.example.AAS.dto.AttributeCurrentResultDto;
 import com.example.AAS.service.RefAttributeService;
 
 @RestController
@@ -55,9 +56,17 @@ public class RefAttributeController {
 	}
 
 	@GetMapping("/getAttributesByCodeOrDescription/{searchParameter}")
-	public ResponseEntity<List<AtrributeDto>> getAttributesByCodeOrDescription(@PathVariable String searchParameter ){
-	List<AtrributeDto> AtrributeDtos = refAttributeService.getAttributesByCodeOrDescription(searchParameter);
-	return new ResponseEntity<>(AtrributeDtos, HttpStatus.OK);
+	public ResponseEntity<List<AtrributeDto>> getAttributesByCodeOrDescription(@PathVariable String searchParameter) {
+		List<AtrributeDto> AtrributeDtos = refAttributeService.getAttributesByCodeOrDescription(searchParameter);
+		return new ResponseEntity<>(AtrributeDtos, HttpStatus.OK);
 	}
-	
+
+	@GetMapping("/{mappingId}/{dataFieldValue}")
+	public ResponseEntity<AttributeCurrentResultDto> checkAttributeCurrentResult(@PathVariable int mappingId,
+			@PathVariable String dataFieldValue) {
+
+		return new ResponseEntity<>(refAttributeService.checkAttributeCurrentResult(mappingId, dataFieldValue),
+				HttpStatus.OK);
+	}
+
 }
